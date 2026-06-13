@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Вход — Библиотека{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5 col-lg-4">
+    <div class="card shadow-sm mt-4">
+      <div class="card-body p-4">
+        <h4 class="card-title mb-4 text-center">
+          <i class="bi bi-box-arrow-in-right me-2"></i>Вход в систему
+        </h4>
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label">Логин</label>
+            <input type="text" name="login" class="form-control" required autofocus>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Пароль</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" name="remember" id="remember">
+            <label class="form-check-label" for="remember">Запомнить меня</label>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Войти</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

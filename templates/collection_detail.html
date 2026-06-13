@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ collection.name }} — Подборка{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <a href="{{ url_for('my_collections') }}" class="text-muted small">
+      <i class="bi bi-arrow-left me-1"></i>Мои подборки
+    </a>
+    <h2 class="mt-1"><i class="bi bi-collection me-2"></i>{{ collection.name }}</h2>
+  </div>
+</div>
+
+{% if books %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+  {% for book in books %}
+  <div class="col">
+    <div class="card h-100 book-card shadow-sm">
+      {% if book.cover %}
+      <img src="{{ url_for('uploaded_file', filename=book.cover) }}"
+           class="card-img-top" style="height:200px;object-fit:cover" alt="Обложка">
+      {% else %}
+      <div class="bg-secondary text-white d-flex align-items-center justify-content-center"
+           style="height:200px;font-size:3rem">
+        <i class="bi bi-book"></i>
+      </div>
+      {% endif %}
+      <div class="card-body">
+        <h6 class="card-title">{{ book.title }}</h6>
+        <p class="card-text text-muted small">{{ book.author }} · {{ book.year }}</p>
+        {% if book.avg_rating %}
+        <span class="badge bg-warning text-dark">
+          <i class="bi bi-star-fill me-1"></i>{{ book.avg_rating }}
+        </span>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-transparent">
+        <a href="{{ url_for('book_detail', book_id=book.id) }}" class="btn btn-sm btn-outline-primary w-100">
+          <i class="bi bi-eye me-1"></i>Просмотр
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-book display-3"></i>
+  <p class="mt-3">В подборке пока нет книг. Добавьте их со страниц книг.</p>
+</div>
+{% endif %}
+{% endblock %}

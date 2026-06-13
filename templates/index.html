@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Главная — Библиотека{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2><i class="bi bi-journals me-2"></i>Каталог книг</h2>
+</div>
+
+{% if books %}
+<div class="table-responsive">
+<table class="table table-hover align-middle bg-white rounded shadow-sm">
+  <thead class="table-dark">
+    <tr>
+      <th>Обложка</th>
+      <th>Название / Автор</th>
+      <th>Жанры</th>
+      <th>Год</th>
+      <th class="text-center">Оценка</th>
+      <th class="text-center">Рецензий</th>
+      <th class="text-center">Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for book in books %}
+  <tr>
+    <td>
+      {% if book.cover %}
+      <img src="{{ url_for('uploaded_file', filename=book.cover) }}"
+           class="cover-thumb" alt="Обложка">
+      {% else %}
+      <div class="cover-thumb bg-secondary d-flex align-items-center justify-content-center text-white rounded">
+        <i class="bi bi-book"></i>
+      </div>
+      {% endif %}
+    </td>
+    <td>
+      <a href="{{ url_for('book_detail', book_id=book.id) }}" class="fw-semibold text-decoration-none">
+        {{ book.title }}
+      </a>
+      <div class="text-muted small">{{ book.author }}</div>
+    </td>
+    <td>
+      {% for g in book.genres %}
+      <span class="badge bg-secondary me-1">{{ g }}</span>
+      {% endfor %}
+    </td>
+    <td>{{ book.year }}</td>
+    <td class="text-center">
+      {% if book.avg_rating %}
+      <span class="badge bg-warning text-dark">
+        <i class="bi bi-star-fill me-1"></i>{{ book.avg_rating }}
+      </span>
+      {% else %}
+      <span class="text-muted small">—</span>
+      {% endif %}
+    </td>
+    <td class="text-center">{{ book.review_count }}</td>
+    <td class="text-center text-nowrap">
+      <a href="{{ url_for('book_detail', book_id=book.id) }}"
+         class="btn btn-sm btn-outline-primary" title="Просмотр">
+        <i class="bi bi-eye"></i>
+      </a>
+      {% if current_user.is_authenticated and current_user.is_moderator %}
+      <a href="{{ url_for('book_edit', book_id=book.id) }}"
+         class="btn btn-sm btn-outline-secondary" title="Редактировать">
+        <i class="bi bi-pencil"></i>
+      </a>
+      {% endif %}
+      {% if current_user.is_authenticated and current_user.is_admin %}
+      <button type="button" class="btn btn-sm btn-outline-danger"
+              title="Удалить"
+              data-bs-toggle="modal" data-bs-target="#deleteModal"
+              data-book-id="{{ book.id }}" data-book-title="{{ book.title }}">
+        <i class="bi bi-trash"></i>
+      </button>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<!-- Пагинация -->
+{% if total_pages > 1 %}
+<nav class="mt-3">
+  <ul class="pagination justify-content-center">
+    {% for p in range(1, total_pages + 1) %}
+    <li class="page-item {% if p == page %}active{% endif %}">
+      <a class="page-link" href="{{ url_for('index', page=p) }}">{{ p }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-inbox display-3"></i>
+  <p class="mt-3">Книг пока нет</p>
+</div>
+{% endif %}
+{% if current_user.is_authenticated and current_user.is_admin %}
+<div class="mt-4">
+  <a href="{{ url_for('book_add') }}" class="btn btn-success">
+    <i class="bi bi-plus-lg me-1"></i>Добавить книгу
+  </a>
+</div>
+{% endif %}
+
+<!-- Модальное окно удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Удаление книги</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="deleteMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <form id="deleteForm" method="POST">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+          <button type="submit" class="btn btn-danger">Да</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const deleteModal = document.getElementById('deleteModal');
+deleteModal.addEventListener('show.bs.modal', function(event) {
+  const btn = event.relatedTarget;
+  const id = btn.getAttribute('data-book-id');
+  const title = btn.getAttribute('data-book-title');
+  document.getElementById('deleteMessage').textContent =
+    `Вы уверены, что хотите удалить книгу "${title}"?`;
+  document.getElementById('deleteForm').action = `/books/${id}/delete`;
+});
+</script>
+{% endblock %}

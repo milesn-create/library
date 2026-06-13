@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Написать рецензию — {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mx-auto" style="max-width:680px">
+  <div class="card-header bg-dark text-white">
+    <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Рецензия на «{{ book.title }}»</h5>
+  </div>
+  <div class="card-body p-4">
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Оценка <span class="text-danger">*</span></label>
+        <select name="rating" class="form-select" required>
+          {% for val, label in RATING_LABELS.items() | sort(reverse=True) %}
+          <option value="{{ val }}" {% if form.get('rating')|string == val|string %}selected{% elif val == 5 %}selected{% endif %}>
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Текст рецензии <span class="text-danger">*</span></label>
+        <textarea name="text" id="reviewText" class="form-control" rows="6">{{ form.get('text', '') }}</textarea>
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-save me-1"></i>Сохранить
+        </button>
+        <a href="{{ url_for('book_detail', book_id=book.id) }}" class="btn btn-outline-secondary">Отмена</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+new EasyMDE({
+  element: document.getElementById('reviewText'),
+  spellChecker: false,
+  toolbar: ['bold','italic','|','quote','unordered-list','|','preview'],
+});
+</script>
+{% endblock %}
